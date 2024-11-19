@@ -1,16 +1,18 @@
 import pymysql
-import os
-from dotenv.main import load_dotenv
+import streamlit as st
 
-load_dotenv()
+USERNAME = st.secrets["USERNAME"]
+PASSWORD = st.secrets["PASSWORD"]
+DATABASE = st.secrets["DATABASE"]
+HOST = st.secrets["HOST"]
 
 class Database:
 
     def __init__(self):
-        self.user = os.environ.get("INFOMANIAK_USERNAME")
-        self.password = os.environ.get("INFOMANIAK_DATABASE_PASSWORD")
-        self.database = os.environ.get("INFOMANIAK_DATABASE")
-        self.host = os.environ.get("INFOMANIAK_SERVER_HOST")
+        self.user = INFOMANIAK_USERNAME
+        self.password = PASSWORD
+        self.database = DATABASE
+        self.host = HOST
 
     def connect(self):
         """Connects to the Database"""
@@ -40,18 +42,6 @@ class Database:
         cur = connection.cursor()
         # Select Query
         cur.execute(query, values)
-
-        cur.close()
-
-
-    def execute_many(self, connection, query, rows):
-        """ 
-        Execute SQL command, to be used for insertion and updates
-        """
-        # Create Cursor
-        cur = connection.cursor()
-        # Select Query
-        cur.executemany(query, rows)
 
         cur.close()
 
