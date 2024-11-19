@@ -9,7 +9,7 @@ HOST = st.secrets["HOST"]
 class Database:
 
     def __init__(self):
-        self.user = INFOMANIAK_USERNAME
+        self.user = USERNAME
         self.password = PASSWORD
         self.database = DATABASE
         self.host = HOST
