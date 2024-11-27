@@ -11,7 +11,6 @@ SELECT
     companies.country,
     companies.city,
     companies.name AS 'company_name',
-    companies.about_us as 'about_company',
     companies.description as 'company_description'
 FROM
     companies
@@ -34,7 +33,6 @@ SELECT
     companies.country,
     companies.city,
     companies.name AS 'company_name',
-    companies.about_us as 'about_company',
     companies.description as 'company_description'
 FROM
     companies
