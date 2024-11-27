@@ -14,7 +14,6 @@ st.set_page_config(
     layout="wide"
 )
 
-
 COMMAND = st.secrets["COMMAND"]
 
 # Load data
@@ -39,10 +38,9 @@ all_points = gpd.GeoDataFrame(
 if 'selected_point' not in st.session_state:
     st.session_state['selected_point'] = {'lat': None, 'lon': None}
 if 'selected_region' not in st.session_state:
-    st.session_state['selected_region'] = None
+    st.session_state['selected_region'] = 'Toutes les régions'  # Set default value here
 
 # Sidebar for region selection and branding
-# Barre latérale avec logo, sélection de région, branding et conditions d'utilisation
 with st.sidebar:
     # Ajouter le logo en haut
     st.image("logo.svg", use_container_width=True)
@@ -50,12 +48,16 @@ with st.sidebar:
 
     # Options de filtrage
     st.title("Carte interactive des solutions Françaises 🇫🇷")
-    st.markdown("Cet outil dévelopé par la Fondation Solar Impulse permet à nos villes et régions partenaires d'explorer notre portefeuille de solutions du territoire Français de manière interactive.")
+    st.markdown("Cet outil développé par la Fondation Solar Impulse permet à nos villes et régions partenaires d'explorer notre portefeuille de solutions du territoire français de manière interactive.")
     st.markdown("---")
 
     region_list = df_regions['region'].unique()
-    region_list = ['Toutes les régions'] + list(region_list)  # Ajouter l'option pour sélectionner toutes les régions
-    selected_region = st.selectbox("Sélectionnez une région", options=region_list)
+    region_list = ['Toutes les régions'] + list(region_list)  # Add "Toutes les régions" at the beginning
+    selected_region = st.selectbox(
+        "Sélectionnez une région",
+        options=region_list,
+        key='selected_region'  # Use session state key
+    )
 
     # Branding dans la barre latérale
     st.markdown("---")
@@ -68,8 +70,11 @@ with st.sidebar:
         En utilisant cet outil, vous acceptez de respecter les termes de cette licence d'utilisation standard et reconnaissez les droits de propriété intellectuelle de la Fondation.
         """)
 
-# Update session state for selected region
-st.session_state['selected_region'] = selected_region
+# Remove this line since 'selected_region' is managed by the selectbox key
+# st.session_state['selected_region'] = selected_region
+
+# Use 'selected_region' from session state
+selected_region = st.session_state['selected_region']
 
 # Filter regions GeoDataFrame based on selected region
 if selected_region == 'Toutes les régions':
@@ -83,12 +88,15 @@ else:
 # Function to create the map
 def create_map():
     if st.session_state['selected_point']['lat'] is not None and st.session_state['selected_point']['lon'] is not None:
+        # Center the map on the selected point
         m = folium.Map(location=[st.session_state['selected_point']['lat'], st.session_state['selected_point']['lon']], zoom_start=12)
     else:
-        # Center map on selected region or France
+        # Center the map on the selected region or France
         if selected_region == 'Toutes les régions':
-            m = folium.Map(location=[46.2276, 2.2137], zoom_start=6)
+            # Center the map on France with a fixed zoom level
+            m = folium.Map(location=[46.2276, 2.2137], zoom_start=5)
         else:
+            # Center the map on the selected region
             region_centroid = filtered_regions_geo.geometry.centroid.iloc[0]
             m = folium.Map(location=[region_centroid.y, region_centroid.x], zoom_start=7)
     # Add selected regions
@@ -122,7 +130,7 @@ st.title("Carte interactive des solutions")
 st_data = st_folium(m, width=700, height=500, key='solutions_map')
 
 # Retrieve map bounds
-if st_data and 'bounds' in st_data:
+if st_data and 'bounds' in st_data and st_data['bounds']:
     bounds = st_data['bounds']
     min_lon = bounds['_southWest']['lng']
     min_lat = bounds['_southWest']['lat']
@@ -137,6 +145,7 @@ if st_data and 'bounds' in st_data:
         (filtered_points['geoLatitude'] <= max_lat)
     ]
 else:
+    # On initial load, display all points
     filtered_points_in_view = filtered_points
 
 # Build grid options
@@ -177,3 +186,4 @@ st.download_button(
     file_name='solutions_filtrées.csv',
     mime='text/csv',
 )
+
