@@ -4,7 +4,6 @@ import geopandas as gpd
 import folium
 from streamlit_folium import st_folium
 from controller import Database
-from sql import COMMAND
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 # Configurer la page
@@ -12,8 +11,11 @@ st.set_page_config(
     page_title="Carte interactive des solutions Françaises",
     page_icon="🌍",
     initial_sidebar_state="expanded",
+    layout="wide"
 )
 
+
+COMMAND = st.secrets["COMMAND"]
 
 # Load data
 db = Database()
